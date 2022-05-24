@@ -1,5 +1,6 @@
 mod boj1000;
 mod boj1001;
+mod boj1008;
 mod boj1330;
 mod boj2480;
 mod boj2525;
