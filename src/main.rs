@@ -72,6 +72,7 @@ mod boj15596;
 mod boj17298;
 mod boj18108;
 mod boj25083;
+mod util;
 
 fn main() {
 	boj5670::main().unwrap()
