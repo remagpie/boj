@@ -1,3 +1,5 @@
+use std::collections::{HashMap, VecDeque};
+
 macro_rules! read_line {
 	($lines: expr) => {$lines.next().unwrap()?};
 	($lines: expr, $type: ty) => {$lines.next().unwrap()?.parse::<$type>().unwrap()};
@@ -89,5 +91,86 @@ impl <T: Clone, A: Clone> LazySegmentNode<T, A> {
 			}
 			right.update(tree, self.middle, end, arguments);
 		}
+	}
+}
+
+pub struct FlowGraph<T> {
+	vertex: HashMap<usize, T>,
+	edge: HashMap<usize, HashMap<usize, usize>>,
+}
+
+impl<T> FlowGraph<T> {
+	pub fn new() -> Self {
+		Self {
+			vertex: HashMap::new(),
+			edge: HashMap::new(),
+		}
+	}
+
+	pub fn insert_vertex(&mut self, index: usize, value: T) {
+		self.vertex.insert(index, value);
+	}
+
+	pub fn insert_edge(&mut self, source: usize, dest: usize, flow: usize) {
+		if !self.edge.contains_key(&source) {
+			self.edge.insert(source, HashMap::new());
+		}
+		self.edge.get_mut(&source).unwrap().insert(dest, flow);
+	}
+
+	pub fn find_flow(&self, source: usize, dest: usize) -> usize {
+		let mut result = 0;
+		let mut residual = self.edge.clone();
+		loop {
+			let mut queue = VecDeque::new();
+			let mut parent = HashMap::new();
+			queue.push_front(source);
+			while let Some(vertex) = queue.pop_back() {
+				if !residual.contains_key(&vertex) {
+					continue;
+				}
+
+				for (target, flow) in residual.get(&vertex).unwrap() {
+					if parent.contains_key(target) || *target == source {
+						continue;
+					}
+					if *flow > 0 {
+						parent.insert(*target, vertex);
+						queue.push_front(*target);
+					}
+				}
+
+				if parent.contains_key(&dest) {
+					break;
+				}
+			}
+
+			if !parent.contains_key(&dest) {
+				break;
+			}
+
+			let mut vertex = dest;
+			let mut flow = usize::MAX;
+			while vertex != source {
+				let parent_vertex = parent.get(&vertex).unwrap();
+				let subgraph = residual.get(parent_vertex).unwrap();
+				let remaining_flow = subgraph.get(&vertex).unwrap();
+				vertex = *parent_vertex;
+				flow = std::cmp::min(flow, *remaining_flow);
+			}
+
+			let mut vertex = dest;
+			while vertex != source {
+				let parent_vertex = parent.get(&vertex).unwrap();
+				let subgraph = residual.get_mut(parent_vertex).unwrap();
+				let remaining_flow = *subgraph.get(&vertex).unwrap();
+				subgraph.insert(vertex, remaining_flow - flow);
+				vertex = *parent_vertex;
+			}
+
+			result += flow;
+		}
+
+		result
 	}
 }

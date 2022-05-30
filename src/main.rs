@@ -15,6 +15,7 @@ mod boj1406;
 mod boj1546;
 mod boj1712;
 mod boj1874;
+mod boj2261;
 mod boj2292;
 mod boj2438;
 mod boj2439;
@@ -64,6 +65,7 @@ mod boj10952;
 mod boj10998;
 mod boj11021;
 mod boj11022;
+mod boj11377;
 mod boj11654;
 mod boj11720;
 mod boj13460;
@@ -76,5 +78,5 @@ mod boj25083;
 mod util;
 
 fn main() {
-	boj1395::main().unwrap()
+	boj2261::main().unwrap()
 }
